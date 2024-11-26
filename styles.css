@@ -1,0 +1,42 @@
+/* Fondo de la aplicación */
+.stApp {
+    background-color: #FFFFFF;  /* Fondo blanco */
+    color: #000000;  /* Texto en negro */
+}
+
+/* Fondo del sidebar y texto en blanco */
+section[data-testid="stSidebar"] {
+    background-color: #63A532;  /* Sidebar en verde */
+    color: #FFFFFF;  /* Texto en blanco en el sidebar */
+}
+
+/* Forzar texto en blanco para todos los elementos en el sidebar */
+section[data-testid="stSidebar"] * {
+    color: #FFFFFF !important;  /* Texto en blanco en el sidebar */
+}
+
+/* Texto negro específicamente para los selectores y entradas en el sidebar */
+section[data-testid="stSidebar"] .stSelectbox>div>div>div,
+section[data-testid="stSidebar"] .stTextInput>div>input,
+section[data-testid="stSidebar"] .stNumberInput>div>input {
+    color: #000000 !important;  /* Texto en negro para selectores y entradas */
+    background-color: #E35B2E !important;  /* Fondo blanco para selectores y entradas */
+}
+
+/* Botones */
+.stButton>button {
+    background-color: #E35B2E;
+    color: #FFFFFF;
+    border-radius: 5px;
+    border: none;
+}
+
+/* Hover en botones */
+.stButton>button:hover {
+    background-color: #C04A28;
+}
+
+/* Títulos en naranja */
+h1, h2, h3, h4, h5, h6 {
+    color: #E35B2E;  /* Títulos en color naranja (#E35B2E) */
+}

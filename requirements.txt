@@ -1,0 +1,9 @@
+streamlit
+pandas
+fpdf
+Pillow
+folium
+selenium
+gspread
+oauth2client
+matplotlib
