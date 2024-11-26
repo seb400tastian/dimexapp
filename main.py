@@ -1093,21 +1093,23 @@ from google.oauth2.service_account import Credentials
 import gspread
 
 def conectar_google_sheets():
-    """Conectar con Google Sheets usando credenciales desde secretos de Streamlit Cloud."""
-    
-    # Leer las credenciales desde los secretos de Streamlit
-    credentials_info = json.loads(os.getenv("GCP_SERVICE_ACCOUNT"))
-    
-    # Crear credenciales utilizando la información de la cuenta de servicio
-    credentials = Credentials.from_service_account_info(credentials_info)
-    
-    # Autorización con Google Sheets
-    cliente = gspread.authorize(credentials)
-    
-    # Abrir la hoja de cálculo
-    hoja = cliente.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1  # Reemplaza con tu clave de Google Sheet
-    return hoja
-
+    """Conectar con Google Sheets usando credenciales desde secretos."""
+    try:
+        # Leer las credenciales desde los secretos
+        credentials_info = json.loads(os.getenv("GCP_SERVICE_ACCOUNT"))
+        
+        # Crear las credenciales
+        credentials = Credentials.from_service_account_info(credentials_info)
+        
+        # Autenticar con Google Sheets
+        cliente = gspread.authorize(credentials)
+        
+        # Abrir la hoja de cálculo
+        hoja = cliente.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1
+        return hoja
+    except Exception as e:
+        print("Error al conectar con Google Sheets:", str(e))
+        raise e
 def serializar_interaccion(interaccion):
     """Convertir todos los valores del diccionario a tipos serializables en JSON."""
     for key, value in interaccion.items():
