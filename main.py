@@ -1092,21 +1092,27 @@ import json
 from google.oauth2.service_account import Credentials
 import gspread
 
+import json
+import os
+from google.oauth2.service_account import Credentials
+import gspread
+
 def conectar_google_sheets():
-    """Conectar con Google Sheets usando credenciales desde secretos."""
     try:
-        # Leer las credenciales desde los secretos
+        # Cargar credenciales desde el entorno
         credentials_info = json.loads(os.getenv("GCP_SERVICE_ACCOUNT"))
         
-        # Crear las credenciales
+        # Verificar si las credenciales tienen el formato correcto
+        print("Credenciales cargadas:", credentials_info.keys())
+        
+        # Crear credenciales
         credentials = Credentials.from_service_account_info(credentials_info)
         
-        # Autenticar con Google Sheets
+        # Autorización con Google Sheets
         cliente = gspread.authorize(credentials)
-        
-        # Abrir la hoja de cálculo
         hoja = cliente.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1
         return hoja
+
     except Exception as e:
         print("Error al conectar con Google Sheets:", str(e))
         raise e
