@@ -1103,11 +1103,12 @@ import streamlit as st
 
 def conectar_google_sheets():
     # Cargar credenciales desde Streamlit Secrets
+    private_key = st.secrets["google_sheets"]["private_key"].replace("\\n", "\n")  # Limpiar el formato de la clave privada
     credentials = {
         "type": st.secrets["google_sheets"]["type"],
         "project_id": st.secrets["google_sheets"]["project_id"],
         "private_key_id": st.secrets["google_sheets"]["private_key_id"],
-        "private_key": st.secrets["google_sheets"]["private_key"],
+        "private_key": private_key,  # Usar la clave privada ajustada
         "client_email": st.secrets["google_sheets"]["client_email"],
         "client_id": st.secrets["google_sheets"]["client_id"],
         "auth_uri": st.secrets["google_sheets"]["auth_uri"],
@@ -1117,11 +1118,14 @@ def conectar_google_sheets():
         "universe_domain": st.secrets["google_sheets"]["universe_domain"],
     }
     
+    # Crear las credenciales
     creds = Credentials.from_service_account_info(credentials)
     client = gspread.authorize(creds)
+    
     # Conectar a la hoja de Google Sheets
     hoja = client.open("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP")
     return hoja
+
 
 def serializar_interaccion(interaccion):
     """Convertir todos los valores del diccionario a tipos serializables en JSON."""
