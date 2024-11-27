@@ -1110,6 +1110,7 @@ def conectar_google_sheets():
         print("Credenciales cargadas exitosamente.")
     except Exception as e:
         print(f"Error al cargar las credenciales: {e}")
+
         raise e
 def serializar_interaccion(interaccion):
     """Convertir todos los valores del diccionario a tipos serializables en JSON."""
