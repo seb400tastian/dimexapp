@@ -1097,21 +1097,32 @@ import os
 from google.oauth2.service_account import Credentials
 import gspread
 
-def conectar_google_sheets():
-    # Obtener las credenciales del entorno de Streamlit
-    credentials_info = os.getenv("GCP_SERVICE_ACCOUNT")
-    
-    if credentials_info is None:
-        raise ValueError("Las credenciales no se encuentran en los secretos de Streamlit.")
-    
-    try:
-        # Intentar cargar el JSON de las credenciales
-        credentials_info = json.loads(credentials_info)
-        print("Credenciales cargadas exitosamente.")
-    except Exception as e:
-        print(f"Error al cargar las credenciales: {e}")
+import gspread
+from google.oauth2.service_account import Credentials
+import streamlit as st
 
-        raise e
+def conectar_google_sheets():
+    # Cargar credenciales desde Streamlit Secrets
+    credentials = {
+        "type": st.secrets["google_sheets"]["type"],
+        "project_id": st.secrets["google_sheets"]["project_id"],
+        "private_key_id": st.secrets["google_sheets"]["private_key_id"],
+        "private_key": st.secrets["google_sheets"]["private_key"],
+        "client_email": st.secrets["google_sheets"]["client_email"],
+        "client_id": st.secrets["google_sheets"]["client_id"],
+        "auth_uri": st.secrets["google_sheets"]["auth_uri"],
+        "token_uri": st.secrets["google_sheets"]["token_uri"],
+        "auth_provider_x509_cert_url": st.secrets["google_sheets"]["auth_provider_x509_cert_url"],
+        "client_x509_cert_url": st.secrets["google_sheets"]["client_x509_cert_url"],
+        "universe_domain": st.secrets["google_sheets"]["universe_domain"],
+    }
+    
+    creds = Credentials.from_service_account_info(credentials)
+    client = gspread.authorize(creds)
+    # Conectar a la hoja de Google Sheets
+    hoja = client.open("Nombre de tu hoja de Google Sheets")
+    return hoja
+
 def serializar_interaccion(interaccion):
     """Convertir todos los valores del diccionario a tipos serializables en JSON."""
     for key, value in interaccion.items():
