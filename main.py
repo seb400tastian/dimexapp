@@ -1120,7 +1120,7 @@ def conectar_google_sheets():
     creds = Credentials.from_service_account_info(credentials)
     client = gspread.authorize(creds)
     # Conectar a la hoja de Google Sheets
-    hoja = client.open("Nombre de tu hoja de Google Sheets")
+    hoja = client.open("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP")
     return hoja
 
 def serializar_interaccion(interaccion):
