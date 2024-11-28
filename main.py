@@ -1107,16 +1107,30 @@ import streamlit as st
 from fpdf import FPDF
 
 def conectar_google_sheets():
-    """Conectar con Google Sheets usando credenciales de la cuenta de servicio."""
+    """Conectar con Google Sheets usando credenciales de la cuenta de servicio desde los secretos en Streamlit Cloud."""
+    # Definir el alcance de las credenciales
     scope = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive.file",
         "https://www.googleapis.com/auth/drive"
     ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name('credenciales.json', scope)
+    
+    # Cargar las credenciales desde los secretos de Streamlit
+    creds_json = st.secrets["google"]["google_credentials"]  # Accede a las credenciales desde el archivo TOML
+    
+    if creds_json:
+        creds_dict = json.loads(creds_json)  # Convertir el JSON en un diccionario
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    else:
+        raise ValueError("Las credenciales de Google Cloud no están configuradas correctamente.")
+    
+    # Autorización con gspread
     cliente = gspread.authorize(creds)
-    hoja = cliente.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1  # Usando el nombre de tu hoja
+    
+    # Acceder a la hoja de Google Sheets usando el ID de la hoja
+    hoja = cliente.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1  # Reemplaza con tu hoja
+    
     return hoja
 
 def serializar_interaccion(interaccion):
