@@ -1095,17 +1095,45 @@ from google.auth import exceptions
 from google.oauth2 import service_account
 
 def conectar_google_sheets():
-    """Conectar con Google Sheets usando credenciales de la cuenta de servicio."""
-    scope = [
-        "https://spreadsheets.google.com/feeds",
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive.file",
-        "https://www.googleapis.com/auth/drive"
-    ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name('credenciales.json', scope)
-    cliente = gspread.authorize(creds)
-    hoja = cliente.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1  # Usando el nombre de tu hoja
-    return hoja
+    """Conectar con Google Sheets usando las credenciales de la cuenta de servicio."""
+    try:
+        # Obtener las credenciales desde los secretos de Streamlit
+        creds_dict = {
+            "type": "service_account",
+            "project_id": st.secrets["project"]["project_id"],
+            "private_key_id": st.secrets["project"]["private_key_id"],
+            "private_key": st.secrets["project"]["private_key"],
+            "client_email": st.secrets["project"]["client_email"],
+            "client_id": st.secrets["project"]["client_id"],
+            "auth_uri": st.secrets["project"]["auth_uri"],
+            "token_uri": st.secrets["project"]["token_uri"],
+            "auth_provider_x509_cert_url": st.secrets["project"]["cert_url"],
+            "client_x509_cert_url": st.secrets["project"]["client_cert_url"],
+            "universe_domain": st.secrets["project"]["universe_domain"]
+        }
+        
+        scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive.file"]
+
+        # Usar google-auth para autenticar con las credenciales
+        creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
+        
+        # Usar gspread para autorizar el cliente
+        client = gspread.authorize(creds)
+        
+        # Abrir la hoja de Google Sheets por su ID
+        hoja = client.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1  # ID correcto de la hoja
+        
+        return hoja
+
+    except exceptions.GoogleAuthError as auth_error:
+        print(f"Error de autenticación: {auth_error}")
+        return None
+    except gspread.exceptions.APIError as api_error:
+        print(f"Error en la API de Google Sheets: {api_error}")
+        return None
+    except Exception as e:
+        print(f"Ha ocurrido un error inesperado: {e}")
+        return None
 
 
 
