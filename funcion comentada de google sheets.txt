@@ -1,0 +1,106 @@
+"""
+def conectar_google_sheets():
+    Conectar con Google Sheets usando las credenciales de la cuenta de servicio.
+    try:
+        # Obtener las credenciales desde los secretos de Streamlit
+        creds_dict = {
+            "type": "service_account",
+            "project_id": st.secrets["project"]["project_id"],
+            "private_key_id": st.secrets["project"]["private_key_id"],
+            "private_key": st.secrets["project"]["private_key"],
+            "client_email": st.secrets["project"]["client_email"],
+            "client_id": st.secrets["project"]["client_id"],
+            "auth_uri": st.secrets["project"]["auth_uri"],
+            "token_uri": st.secrets["project"]["token_uri"],
+            "auth_provider_x509_cert_url": st.secrets["project"]["cert_url"],
+            "client_x509_cert_url": st.secrets["project"]["client_cert_url"],
+            "universe_domain": st.secrets["project"]["universe_domain"]
+        }
+
+        scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive.file"]
+
+        # Usar google-auth para autenticar con las credenciales
+        creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
+        
+        # Usar gspread para autorizar el cliente
+        client = gspread.authorize(creds)
+        
+        # Abrir la hoja de Google Sheets por su ID
+        hoja = client.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1  # ID correcto de la hoja
+        
+        if hoja:
+            st.write("Conexión exitosa con Google Sheets. Hoja de cálculo abierta.")
+        else:
+            st.write("Error: No se pudo acceder a la hoja de cálculo.")
+        
+        return hoja
+
+    except exceptions.GoogleAuthError as auth_error:
+        st.write(f"Error de autenticación: {auth_error}")
+        return None
+    except gspread.exceptions.APIError as api_error:
+        st.write(f"Error en la API de Google Sheets: {api_error}")
+        return None
+    except gspread.exceptions.SpreadsheetNotFound as snf_error:
+        st.write(f"Hoja de cálculo no encontrada: {snf_error}")
+        return None
+    except Exception as e:
+        st.write(f"Ha ocurrido un error inesperado: {e}")
+        return None
+def serializar_interaccion(interaccion):
+    Convertir todos los valores del diccionario a tipos serializables en JSON.
+    for key, value in interaccion.items():
+        if isinstance(value, date):
+            interaccion[key] = value.strftime("%Y-%m-%d")  # Convertir fechas a string
+        elif isinstance(value, pd._libs.missing.NAType) or value is None:
+            interaccion[key] = ""  # Convertir valores nulos a una cadena vacía
+        elif isinstance(value, (int, float, bool)):
+            interaccion[key] = str(value)  # Convertir números y booleanos a string
+        elif isinstance(value, pd.Timestamp):
+            interaccion[key] = value.strftime("%Y-%m-%d %H:%M:%S")  # Convertir timestamps a string
+        else:
+            interaccion[key] = str(value)  # Convertir todo lo demás a string
+    return interaccion
+
+def guardar_en_google_sheets(interaccion):
+    Guardar la interacción en Google Sheets con las columnas especificadas.
+    hoja = conectar_google_sheets()
+    
+    # Serializar la interacción antes de guardarla
+    interaccion = serializar_interaccion(interaccion)
+    
+    # Columnas especificadas, incluyendo los nuevos campos
+    columnas = [
+        "Solicitud_id",
+        "Recomendación Oferta",
+        "Línea de Crédito",
+        "Pago Mensual",
+        "Ingreso Mensual",
+        "Nivel de Atraso",
+        "Mensualidades Adeudadas",
+        "Dirección",  # Nuevo campo
+        "Número de Celular",  # Nuevo campo
+        "Resultado",
+        "Negociación Oferta",
+        "Promesa",
+        "Fecha de Pago Estimada",
+        "Monto Prometido",
+        "Quién Atendió",
+        "Especificar Quién",
+        "Recado",
+        "Comentarios",
+        "Fecha de Creación",  # Añadimos campos adicionales
+        "Hora de Creación"
+    ]
+    
+    # Obtener todas las filas actuales en la hoja
+    filas_existentes = hoja.get_all_values()
+    
+    # Si la primera fila no tiene los encabezados, añadirlos
+    if not filas_existentes or filas_existentes[0] != columnas:
+        hoja.insert_row(columnas, 1)
+    
+    # Agregar la fila con los datos de la interacción
+    fila = [interaccion.get(col, "") for col in columnas]
+    hoja.append_row(fila)
+"""
