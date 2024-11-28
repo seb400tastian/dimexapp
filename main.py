@@ -1090,9 +1090,14 @@ from fpdf import FPDF
 
 import json
 import gspread
+
+from google.auth import exceptions
+from google.oauth2 import service_account
+import gspread
 from google.auth.transport.requests import Request
 from google.auth import exceptions
 from google.oauth2 import service_account
+import streamlit as st
 
 def conectar_google_sheets():
     """Conectar con Google Sheets usando las credenciales de la cuenta de servicio."""
@@ -1111,7 +1116,7 @@ def conectar_google_sheets():
             "client_x509_cert_url": st.secrets["project"]["client_cert_url"],
             "universe_domain": st.secrets["project"]["universe_domain"]
         }
-        
+
         scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive.file"]
 
         # Usar google-auth para autenticar con las credenciales
@@ -1123,19 +1128,25 @@ def conectar_google_sheets():
         # Abrir la hoja de Google Sheets por su ID
         hoja = client.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1  # ID correcto de la hoja
         
+        if hoja:
+            st.write("Conexión exitosa con Google Sheets. Hoja de cálculo abierta.")
+        else:
+            st.write("Error: No se pudo acceder a la hoja de cálculo.")
+        
         return hoja
 
     except exceptions.GoogleAuthError as auth_error:
-        print(f"Error de autenticación: {auth_error}")
+        st.write(f"Error de autenticación: {auth_error}")
         return None
     except gspread.exceptions.APIError as api_error:
-        print(f"Error en la API de Google Sheets: {api_error}")
+        st.write(f"Error en la API de Google Sheets: {api_error}")
+        return None
+    except gspread.exceptions.SpreadsheetNotFound as snf_error:
+        st.write(f"Hoja de cálculo no encontrada: {snf_error}")
         return None
     except Exception as e:
-        print(f"Ha ocurrido un error inesperado: {e}")
+        st.write(f"Ha ocurrido un error inesperado: {e}")
         return None
-
-
 
 def serializar_interaccion(interaccion):
     """Convertir todos los valores del diccionario a tipos serializables en JSON."""
