@@ -1099,6 +1099,7 @@ from google.auth import exceptions
 from google.oauth2 import service_account
 import streamlit as st
 
+'''
 def conectar_google_sheets():
     """Conectar con Google Sheets usando las credenciales de la cuenta de servicio."""
     try:
@@ -1147,7 +1148,7 @@ def conectar_google_sheets():
     except Exception as e:
         st.write(f"Ha ocurrido un error inesperado: {e}")
         return None
-
+'''
 def serializar_interaccion(interaccion):
     """Convertir todos los valores del diccionario a tipos serializables en JSON."""
     for key, value in interaccion.items():
