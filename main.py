@@ -1089,10 +1089,6 @@ import streamlit as st
 from fpdf import FPDF
 
 import json
-from google.oauth2 import service_account
-from google.auth.transport.requests import Request
-import gspread
-
 import gspread
 from google.auth.transport.requests import Request
 from google.auth import exceptions
@@ -1120,7 +1116,15 @@ def conectar_google_sheets():
         creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
         client = gspread.authorize(creds)
         hoja = client.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1  # ID correcto de la hoja
+        
+        # Verificación si la hoja se abrió correctamente
+        if hoja:
+            print("Conexión exitosa con Google Sheets. Hoja de cálculo abierta.")
+        else:
+            print("Error: No se pudo acceder a la hoja de cálculo.")
+        
         return hoja
+
     except exceptions.GoogleAuthError as auth_error:
         print(f"Error de autenticación: {auth_error}")
         return None
