@@ -1,3 +1,22 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import streamlit as st
 import pandas as pd
 from datetime import date
@@ -1087,45 +1106,18 @@ from datetime import date
 import streamlit as st
 from fpdf import FPDF
 
-import os
-import json
-from google.oauth2.service_account import Credentials
-import gspread
-
-import json
-import os
-from google.oauth2.service_account import Credentials
-import gspread
-
-import gspread
-from google.oauth2.service_account import Credentials
-import streamlit as st
-
 def conectar_google_sheets():
-    # Cargar credenciales desde Streamlit Secrets
-    private_key = st.secrets["google_sheets"]["private_key"].replace("\\n", "\n")  # Limpiar el formato de la clave privada
-    credentials = {
-        "type": st.secrets["google_sheets"]["type"],
-        "project_id": st.secrets["google_sheets"]["project_id"],
-        "private_key_id": st.secrets["google_sheets"]["private_key_id"],
-        "private_key": private_key,  # Usar la clave privada ajustada
-        "client_email": st.secrets["google_sheets"]["client_email"],
-        "client_id": st.secrets["google_sheets"]["client_id"],
-        "auth_uri": st.secrets["google_sheets"]["auth_uri"],
-        "token_uri": st.secrets["google_sheets"]["token_uri"],
-        "auth_provider_x509_cert_url": st.secrets["google_sheets"]["auth_provider_x509_cert_url"],
-        "client_x509_cert_url": st.secrets["google_sheets"]["client_x509_cert_url"],
-        "universe_domain": st.secrets["google_sheets"]["universe_domain"],
-    }
-    
-    # Crear las credenciales
-    creds = Credentials.from_service_account_info(credentials)
-    client = gspread.authorize(creds)
-    
-    # Conectar a la hoja de Google Sheets
-    hoja = client.open("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP")
+    """Conectar con Google Sheets usando credenciales de la cuenta de servicio."""
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive.file",
+        "https://www.googleapis.com/auth/drive"
+    ]
+    creds = ServiceAccountCredentials.from_json_keyfile_name('credenciales.json', scope)
+    cliente = gspread.authorize(creds)
+    hoja = cliente.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1  # Usando el nombre de tu hoja
     return hoja
-
 
 def serializar_interaccion(interaccion):
     """Convertir todos los valores del diccionario a tipos serializables en JSON."""
@@ -1189,8 +1181,9 @@ def guardar_en_google_sheets(interaccion):
 from datetime import datetime
 
 def crear_interaccion(solicitud_id):
-    solicitud_id = int(solicitud_id)
     """Formulario para crear una nueva interacción vinculada a un ID y generar un PDF."""
+    direccion = None  # Inicializar la variable
+
     # Inicializar la sesión si no existe
     if "interacciones" not in st.session_state:
         st.session_state.interacciones = []
@@ -1205,7 +1198,7 @@ def crear_interaccion(solicitud_id):
 
     # Cargar datos de la solicitud
     solicitud_data = df_mo[df_mo['Solicitud_id'] == solicitud_id]
-    
+
     # Diccionarios para convertir el nivel de atraso a texto y mensualidades
     nivel_atraso_dict = {
         0: 'atraso_120_149',
@@ -1216,7 +1209,7 @@ def crear_interaccion(solicitud_id):
         5: 'atraso_60_89',
         6: 'atraso_90_119'
     }
-    
+
     mensualidades_dict = {
         'atraso_1_29': 1,
         'atraso_30_59': 2,
@@ -1226,7 +1219,7 @@ def crear_interaccion(solicitud_id):
         'atraso_150_179': 6,
         'atraso_180_más': 7
     }
-    
+
     # Extraer información de la solicitud
     if not solicitud_data.empty:
         recomendacion_oferta = solicitud_data['Prediccion Optima'].values[0] if not pd.isna(solicitud_data['Prediccion Optima'].values[0]) else "Sin oferta"
@@ -1254,7 +1247,7 @@ def crear_interaccion(solicitud_id):
     opciones_oferta = df_mo['Prediccion Optima'].dropna().unique().tolist()
     if not opciones_oferta:
         opciones_oferta = ["Sin oferta"]
-    
+
     # Mostrar información en el formulario
     st.subheader("Información de la Cuenta")
     st.text_input("Recomendación Oferta de Cobranza", value=recomendacion_oferta, disabled=True)
@@ -1264,7 +1257,9 @@ def crear_interaccion(solicitud_id):
     st.text_input("Nivel de Atraso", value=nivel_atraso, disabled=True)
     st.text_input("Mensualidades Adeudadas", value=f"{mensualidades_adeudadas} mensualidad(es)", disabled=True)
 
+    # Definir `resultado_seleccionado` antes de usarlo
     resultado_seleccionado = st.selectbox("Resultado", ["Respondió", "No Respondió"])
+
     negociacion_oferta = None
     promesa_seleccionada = None
     fecha_pago_estimada = None
@@ -1272,14 +1267,14 @@ def crear_interaccion(solicitud_id):
     quien_atendio = None
     especificar_quien = None
     recado = None
-    fecha_visita = None
+    numero_celular = None
+
     if resultado_seleccionado == "Respondió":
         negociacion_oferta = st.selectbox("Negociación Oferta", opciones_oferta)
         promesa_seleccionada = st.selectbox("Promesa", ["Sí", "No"])
         if promesa_seleccionada == "Sí":
             fecha_pago_estimada = st.date_input("Plazo de Pago Estimado", date.today())
             monto_prometido = st.number_input("Promesa de Monto a Pagar", min_value=0.0, format="%.2f")
-        # Nuevos campos: Dirección y Número de Celular
         st.subheader("Información de Contacto")
         direccion = st.text_input("Dirección del Cliente", placeholder="Introduce la dirección del cliente")
         numero_celular = st.text_input("Número de Celular", placeholder="Introduce el número de celular del cliente")
@@ -1288,15 +1283,13 @@ def crear_interaccion(solicitud_id):
         if quien_atendio == "Otro":
             especificar_quien = st.text_input("Especificar quién atendió")
         recado = st.text_area("Recado dejado a la persona que atendió", "")
-       
 
     comentarios = st.text_area("Comentarios adicionales", "")
 
     if st.button("Guardar Interacción"):
-        # Obtener la fecha y hora actuales
         fecha_creacion = datetime.now().strftime("%Y-%m-%d")
         hora_creacion = datetime.now().strftime("%H:%M:%S")
-        
+
         nueva_interaccion = {
             "Solicitud_id": solicitud_id,
             "Recomendación Oferta": recomendacion_oferta,
@@ -1315,34 +1308,28 @@ def crear_interaccion(solicitud_id):
             "Quién Atendió": quien_atendio,
             "Especificar Quién": especificar_quien,
             "Recado": recado,
-            
             "Comentarios": comentarios,
             "Fecha de Creación": fecha_creacion,
             "Hora de Creación": hora_creacion,
         }
 
         st.session_state.interacciones.append(nueva_interaccion)
-
         guardar_en_google_sheets(nueva_interaccion)
         st.success("Interacción guardada exitosamente en Google Sheets")
 
-        # Mostrar la interacción creada
         st.subheader("Interacción guardada")
         st.dataframe(pd.DataFrame(st.session_state.interacciones))
 
-        # Generar PDF
         mapa_img = generar_mapa(solicitud_data)
-        pdf_file = generar_pdf(nueva_interaccion, mapa_img)  # Captura la ruta del archivo
+        pdf_file = generar_pdf(nueva_interaccion, mapa_img)
 
-        # Descargar el PDF en Streamlit
         with open(pdf_file, "rb") as file:
             st.download_button("Descargar PDF", data=file, file_name="interaccion.pdf")
 
         st.session_state.mostrar_formulario = False
 
-        
-
     return st.session_state.interacciones
+
 
 # Inicializar las claves de sesión necesarias
 for key, default_value in {
@@ -1434,3 +1421,4 @@ else:
         st.session_state.page = None
         st.session_state.solicitud_seleccionada = None
         st.stop()
+
