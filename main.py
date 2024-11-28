@@ -1014,6 +1014,15 @@ from PIL import Image
 from io import BytesIO
 import os
 
+import os
+import folium
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from PIL import Image
+from io import BytesIO
+
 def generar_mapa(solicitud_data):
     """Genera un mapa con la ubicación del cliente y lo guarda como imagen usando Selenium."""
     if 'latitude' in solicitud_data.columns and 'longitude' in solicitud_data.columns:
@@ -1029,17 +1038,27 @@ def generar_mapa(solicitud_data):
             mapa_html = "temp_map.html"
             mapa.save(mapa_html)
             
-            # Configurar Selenium para tomar la captura de pantalla
-            options = webdriver.ChromeOptions()
-            options.add_argument('--headless')
+            # Configurar opciones de Selenium para el navegador Chrome en modo headless
+            options = Options()
+            options.add_argument('--headless')  # Ejecutar en modo sin interfaz gráfica
             options.add_argument('--no-sandbox')
             options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--disable-gpu')  # Desactivar el uso de la GPU (recomendado para entornos sin GUI)
             
-            # Asegúrate de tener ChromeDriver instalado en tu sistema
-            driver = webdriver.Chrome(options=options)
+            # Configurar el path al ChromeDriver si es necesario
+            # Asegúrate de que chromedriver esté en el PATH o especifica su ubicación aquí
+            service = Service(executable_path='/path/to/chromedriver')  # Cambia esta línea si es necesario
+            
+            # Asegúrate de tener el ChromeDriver compatible con tu versión de Chrome
+            driver = webdriver.Chrome(service=service, options=options)
+            
+            # Abrir el mapa guardado como archivo HTML
             driver.get("file:///" + os.path.abspath(mapa_html))
             
-            # Tomar una captura de pantalla
+            # Esperar a que la página se cargue completamente
+            driver.implicitly_wait(3)  # Puedes ajustar el tiempo de espera si es necesario
+            
+            # Tomar la captura de pantalla
             screenshot = driver.get_screenshot_as_png()
             driver.quit()
             
@@ -1049,6 +1068,7 @@ def generar_mapa(solicitud_data):
             
             return "map_image.png"
     return None
+
 
 
 from fpdf import FPDF
