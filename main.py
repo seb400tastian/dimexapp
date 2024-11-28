@@ -1092,7 +1092,7 @@ import json
 from google.oauth2 import service_account
 from google.auth.transport.requests import Request
 import gspread
-
+from google.auth.exceptions import GoogleAuthError
 def conectar_google_sheets():
     """Conectar con Google Sheets usando las credenciales de la cuenta de servicio."""
     try:
