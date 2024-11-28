@@ -1095,33 +1095,43 @@ import gspread
 
 def conectar_google_sheets():
     """Conectar con Google Sheets usando las credenciales de la cuenta de servicio."""
-    # Diccionario con las credenciales (esto lo puedes cargar de un archivo JSON o de una variable de entorno)
-    creds_dict = {
-        "type": "service_account",
-        "project_id": "dmx-app-441515",
-        "private_key_id": "ee4a5e37ef77f35efc54380d073491336d82538e",
-        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDN9ZaqBisIL3BT\nDbi2+jeeRjwDnYrngeavnkAOQhKaRWRGUu+bDQdi6IWqtTwzQ0dJLnCKLPGYT8LS\n0e77N643ZM799cJt214nIz6ltPYCLH+IH/sqyrs41QNx1JqGxj+huGC9pFRnHCHZ\naBJLcybpe2FreU7Vompi6Hep5TvItdn3PSullS5ESxFewa0LnO2uwv47XSGeBV2U\nin1pMV6x4UkkBHLfnFu5EST8mRwXmqD3x7pgjQE3gbJX+Hn0TEXH2Hw+8Ld0vkxg\nBCFmOkhVAfiGcJ3FvcGFdB16JhL5g7t/76xK2iePYDfp/W5KO+4lNbObdsCaGtBH\n8QHPpePBAgMBAAECggEAGYXHbsiupLgnO92RkDg78/TJa1vGqrdz6Dusva+VqVEz\n0sykhWL1ET5WESBeJk6eKv0SpGbbJggtUQ2Dp1VANTxcc8d0mYNDnMc+9E8zZLPR\ntoNbD1OZ5ZotD/o8D3tKB58G+v0+Gdx4O94sFTY/AlRAL260FKCIvTrIWHEQKmgY\nb9MdUJe+93cRnMjOux0Xgym76qor0KbidJN9DnavTgGGlu/uRkUA0bkx8+kgVy32\nMJIt3ktzLisBsdI1Saifu2wof58WUDzD7lNtrdev8ViYXc0wl6wR4yqeu8dH82l8\nbRWdVR9sqv7+VR6i/19k42uWOHlvvPWL5SASXfPzKQKBgQD/bRKZ88QznzWPhyEC\noK79MRfoNe+W8854BC5I0iJcnkANBXCu+R+10VUeCZHeNxxLmGix28bwqqiLV/Km\nx1ewQoeKeqfwJ9sNJWmjXW4ISAbWc9zGQXWJhb4i9nzGX6gg7yhqMj+9VObb4D0U\nzw1VhonClnPxHKjb8NGevZ4DOQKBgQDObA+3UC8DtWY7YkxbOMWolOxwnzI14YJW\nNEZrcoNr25DbNPwOYUNl14gnDQf/iXXUpwU2xQ9mmtSD3VsXfcu1LdC0XoqK9yFY\n8J5UduJIZSFgx81cT3dajRPrpak4mChbQXzvuuuZE4EPZ7b52w8Q8bdsO3S3LqG7\n9U/H8HQ8yQKBgQDMp3oF/DiyG9hwXZbnYhOTLmi3V6/WRRajNsZW9nctumYbiMZW\ni6kKpuUKIiTL5WA4ea85Ap0Na8+LhjYXxxTNVyD+pXQ1idmLWPShPlTRMdS4szCr\ncPtZ6t0DandjAnXVnYnGPOixLHukpLCMIbHPWvK6BI51G794KiXqiIc4kQKBgGTG\nVsncyIcb+UQGklZ6mezaf6/f2Ih7hsEFFlgAeO6gK9EIxgFTNK80kRDXiM8VUcQ2\nohICFKm37wZNe9o1HM1gB6L3ANYlHk+ocPO1cnV7gdcY1EY7uX4on9AMeVfa2ODs\nUM1MyRZbckeOD8NdUbao+y5IvIttpaH4ejGXT3gZAoGAVEhhGM/NagVyJe8b1i0g\nH/7InERAt217TGsHPzr96kILxeFRobc5PIFH0kB9RXwJcLuBUTxNLte36XQOAqvP\nyxE/8/OuLGuw90JjqkCOaRv9ocvWGmD0OkeH/ALo50SHXZqPVhy2eorsd+4g1sZj\nXGwXUaWFS5kHGAd2USyvD8A=\n-----END PRIVATE KEY-----\n",
-        "client_email": "dmxapp@dmx-app-441515.iam.gserviceaccount.com",
-        "client_id": "105215593462097341138",
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/dmxapp%40dmx-app-441515.iam.gserviceaccount.com",
-        "universe_domain": "googleapis.com"
-    }
+    try:
+        # Diccionario con las credenciales (esto lo puedes cargar de un archivo JSON o de una variable de entorno)
+        creds_dict = {
+            "type": "service_account",
+            "project_id": "dmx-app-441515",
+            "private_key_id": "ee4a5e37ef77f35efc54380d073491336d82538e",
+            "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDN9ZaqBisIL3BT\nDbi2+jeeRjwDnYrngeavnkAOQhKaRWRGUu+bDQdi6IWqtTwzQ0dJLnCKLPGYT8LS\n0e77N643ZM799cJt214nIz6ltPYCLH+IH/sqyrs41QNx1JqGxj+huGC9pFRnHCHZ\naBJLcybpe2FreU7Vompi6Hep5TvItdn3PSullS5ESxFewa0LnO2uwv47XSGeBV2U\nin1pMV6x4UkkBHLfnFu5EST8mRwXmqD3x7pgjQE3gbJX+Hn0TEXH2Hw+8Ld0vkxg\nBCFmOkhVAfiGcJ3FvcGFdB16JhL5g7t/76xK2iePYDfp/W5KO+4lNbObdsCaGtBH\n8QHPpePBAgMBAAECggEAGYXHbsiupLgnO92RkDg78/TJa1vGqrdz6Dusva+VqVEz\n0sykhWL1ET5WESBeJk6eKv0SpGbbJggtUQ2Dp1VANTxcc8d0mYNDnMc+9E8zZLPR\ntoNbD1OZ5ZotD/o8D3tKB58G+v0+Gdx4O94sFTY/AlRAL260FKCIvTrIWHEQKmgY\nb9MdUJe+93cRnMjOux0Xgym76qor0KbidJN9DnavTgGGlu/uRkUA0bkx8+kgVy32\nMJIt3ktzLisBsdI1Saifu2wof58WUDzD7lNtrdev8ViYXc0wl6wR4yqeu8dH82l8\nbRWdVR9sqv7+VR6i/19k42uWOHlvvPWL5SASXfPzKQKBgQD/bRKZ88QznzWPhyEC\noK79MRfoNe+W8854BC5I0iJcnkANBXCu+R+10VUeCZHeNxxLmGix28bwqqiLV/Km\nx1ewQoeKeqfwJ9sNJWmjXW4ISAbWc9zGQXWJhb4i9nzGX6gg7yhqMj+9VObb4D0U\nzw1VhonClnPxHKjb8NGevZ4DOQKBgQDObA+3UC8DtWY7YkxbOMWolOxwnzI14YJW\nNEZrcoNr25DbNPwOYUNl14gnDQf/iXXUpwU2xQ9mmtSD3VsXfcu1LdC0XoqK9yFY\n8J5UduJIZSFgx81cT3dajRPrpak4mChbQXzvuuuZE4EPZ7b52w8Q8bdsO3S3LqG7\n9U/H8HQ8yQKBgQDMp3oF/DiyG9hwXZbnYhOTLmi3V6/WRRajNsZW9nctumYbiMZW\ni6kKpuUKIiTL5WA4ea85Ap0Na8+LhjYXxxTNVyD+pXQ1idmLWPShPlTRMdS4szCr\ncPtZ6t0DandjAnXVnYnGPOixLHukpLCMIbHPWvK6BI51G794KiXqiIc4kQKBgGTG\nVsncyIcb+UQGklZ6mezaf6/f2Ih7hsEFFlgAeO6gK9EIxgFTNK80kRDXiM8VUcQ2\nohICFKm37wZNe9o1HM1gB6L3ANYlHk+ocPO1cnV7gdcY1EY7uX4on9AMeVfa2ODs\nUM1MyRZbckeOD8NdUbao+y5IvIttpaH4ejGXT3gZAoGAVEhhGM/NagVyJe8b1i0g\nH/7InERAt217TGsHPzr96kILxeFRobc5PIFH0kB9RXwJcLuBUTxNLte36XQOAqvP\nyxE/8/OuLGuw90JjqkCOaRv9ocvWGmD0OkeH/ALo50SHXZqPVhy2eorsd+4g1sZj\nXGwXUaWFS5kHGAd2USyvD8A=\n-----END PRIVATE KEY-----\n",
+            "client_email": "dmxapp@dmx-app-441515.iam.gserviceaccount.com",
+            "client_id": "105215593462097341138",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/dmxapp%40dmx-app-441515.iam.gserviceaccount.com",
+            "universe_domain": "googleapis.com"
+        }
+        
+        # Definir los scopes necesarios para acceder a Google Sheets
+        scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive.file"]
+        
+        # Usar google-auth para autenticar con las credenciales
+        creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
+        
+        # Usar gspread para autorizar el cliente
+        client = gspread.authorize(creds)
+        
+        # Abrir la hoja de Google Sheets por su ID
+        hoja = client.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1  # Usar el ID de tu hoja
+        return hoja
 
-    # Definir los scopes necesarios para acceder a Google Sheets
-    scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive.file"]
-
-    # Usar google-auth para autenticar con las credenciales
-    creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
-
-    # Usar gspread para autorizar el cliente
-    client = gspread.authorize(creds)
-
-    # Abrir la hoja de Google Sheets por su ID
-    hoja = client.open_by_key("1M_H6PbZTgypAV8Vmk4BIoickAGw-uYMeXbZP-UVjdig").sheet1  # Usar el ID de tu hoja
-    return hoja
+    except GoogleAuthError as e:
+        print(f"Error de autenticación: {e}")
+    except gspread.exceptions.APIError as e:
+        print(f"Error al acceder a Google Sheets: {e}")
+    except gspread.exceptions.SpreadsheetNotFound as e:
+        print(f"Hoja de cálculo no encontrada: {e}")
+    except Exception as e:
+        print(f"Error desconocido: {e}")
 
 
 def serializar_interaccion(interaccion):
