@@ -1006,6 +1006,7 @@ def mostrar_historial_interacciones(solicitud_id):
         crear_interaccion(solicitud_id)
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service  # Importa Service
 from selenium.webdriver.chrome.options import Options
 from PIL import Image
 from io import BytesIO
@@ -1037,8 +1038,11 @@ def generar_mapa(solicitud_data):
             # Usar WebDriverManager para obtener el path del ChromeDriver
             chromedriver_path = ChromeDriverManager().install()  # Obtener el path del chromedriver
             
-            # Inicializar el driver con el path del chromedriver obtenido
-            driver = webdriver.Chrome(executable_path=chromedriver_path, options=options)
+            # Usar el objeto Service para pasar el path al controlador
+            service = Service(chromedriver_path)  # Aquí está el cambio
+            
+            # Inicializar el driver con el objeto Service
+            driver = webdriver.Chrome(service=service, options=options)
             
             # Abrir el mapa guardado como archivo HTML
             driver.get("file:///" + os.path.abspath(mapa_html))
@@ -1056,6 +1060,7 @@ def generar_mapa(solicitud_data):
             
             return "map_image.png"
     return None
+
 
 
 
