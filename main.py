@@ -1004,68 +1004,6 @@ def mostrar_historial_interacciones(solicitud_id):
 
     if st.session_state.get('mostrar_formulario', False):
         crear_interaccion(solicitud_id)
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service  # Importa Service
-from selenium.webdriver.chrome.options import Options
-from PIL import Image
-from io import BytesIO
-import folium
-import os
-
-def generar_mapa(solicitud_data):
-    """Genera un mapa con la ubicación del cliente y lo guarda como imagen usando Selenium."""
-    if 'latitude' in solicitud_data.columns and 'longitude' in solicitud_data.columns:
-        coordenadas = solicitud_data[['latitude', 'longitude']].dropna()
-        if not coordenadas.empty:
-            lat, lon = coordenadas.iloc[0]
-            
-            # Crear un mapa con folium
-            mapa = folium.Map(location=[lat, lon], zoom_start=15)
-            folium.Marker([lat, lon], tooltip="Ubicación del Cliente").add_to(mapa)
-            
-            # Guardar el mapa como HTML
-            mapa_html = "temp_map.html"
-            mapa.save(mapa_html)
-            
-            # Configurar opciones de Selenium para el navegador Chrome en modo headless
-            options = Options()
-            options.add_argument('--headless')  # Ejecutar en modo sin interfaz gráfica
-            options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
-            options.add_argument('--disable-gpu')  # Desactivar el uso de la GPU (recomendado para entornos sin GUI)
-            
-            # Usar WebDriverManager para obtener el path del ChromeDriver
-            chromedriver_path = ChromeDriverManager().install()  # Obtener el path del chromedriver
-            
-            # Usar el objeto Service para pasar el path al controlador
-            service = Service(chromedriver_path)  # Aquí está el cambio
-            
-            # Inicializar el driver con el objeto Service
-            driver = webdriver.Chrome(service=service, options=options)
-            
-            # Abrir el mapa guardado como archivo HTML
-            driver.get("file:///" + os.path.abspath(mapa_html))
-            
-            # Esperar a que la página se cargue completamente
-            driver.implicitly_wait(3)  # Puedes ajustar el tiempo de espera si es necesario
-            
-            # Tomar la captura de pantalla
-            screenshot = driver.get_screenshot_as_png()
-            driver.quit()
-            
-            # Convertir la captura de pantalla a una imagen usando Pillow
-            imagen = Image.open(BytesIO(screenshot))
-            imagen.save("map_image.png")
-            
-            return "map_image.png"
-    return None
-
-
-
-
-
-
 from fpdf import FPDF
 
 def generar_pdf(interaccion, mapa_img=None):
@@ -1255,8 +1193,8 @@ def crear_interaccion(solicitud_id):
         st.subheader("Interacción guardada")
         st.dataframe(pd.DataFrame(st.session_state.interacciones))
 
-        mapa_img = generar_mapa(solicitud_data)
-        pdf_file = generar_pdf(nueva_interaccion, mapa_img)
+        #mapa_img = generar_mapa(solicitud_data)
+        pdf_file = generar_pdf(nueva_interaccion)
 
         with open(pdf_file, "rb") as file:
             st.download_button("Descargar PDF", data=file, file_name="interaccion.pdf")
