@@ -1004,19 +1004,13 @@ def mostrar_historial_interacciones(solicitud_id):
 
     if st.session_state.get('mostrar_formulario', False):
         crear_interaccion(solicitud_id)
-
-
-
-
-import folium
-from selenium import webdriver
-from PIL import Image
-from io import BytesIO
-import os
-
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from PIL import Image
+from io import BytesIO
+import folium
+import os
 
 def generar_mapa(solicitud_data):
     """Genera un mapa con la ubicación del cliente y lo guarda como imagen usando Selenium."""
@@ -1040,8 +1034,11 @@ def generar_mapa(solicitud_data):
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument('--disable-gpu')  # Desactivar el uso de la GPU (recomendado para entornos sin GUI)
             
-            # Usar WebDriverManager para obtener el ChromeDriver
-            driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+            # Usar WebDriverManager para obtener el path del ChromeDriver
+            chromedriver_path = ChromeDriverManager().install()  # Obtener el path del chromedriver
+            
+            # Inicializar el driver con el path del chromedriver obtenido
+            driver = webdriver.Chrome(executable_path=chromedriver_path, options=options)
             
             # Abrir el mapa guardado como archivo HTML
             driver.get("file:///" + os.path.abspath(mapa_html))
@@ -1059,6 +1056,7 @@ def generar_mapa(solicitud_data):
             
             return "map_image.png"
     return None
+
 
 
 
