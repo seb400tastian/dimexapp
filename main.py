@@ -1099,9 +1099,9 @@ from google.auth import exceptions
 from google.oauth2 import service_account
 import streamlit as st
 
-'''
+"""
 def conectar_google_sheets():
-    """Conectar con Google Sheets usando las credenciales de la cuenta de servicio."""
+    Conectar con Google Sheets usando las credenciales de la cuenta de servicio.
     try:
         # Obtener las credenciales desde los secretos de Streamlit
         creds_dict = {
@@ -1148,9 +1148,10 @@ def conectar_google_sheets():
     except Exception as e:
         st.write(f"Ha ocurrido un error inesperado: {e}")
         return None
-'''
+"""
+"""
 def serializar_interaccion(interaccion):
-    """Convertir todos los valores del diccionario a tipos serializables en JSON."""
+    Convertir todos los valores del diccionario a tipos serializables en JSON.
     for key, value in interaccion.items():
         if isinstance(value, date):
             interaccion[key] = value.strftime("%Y-%m-%d")  # Convertir fechas a string
@@ -1165,7 +1166,7 @@ def serializar_interaccion(interaccion):
     return interaccion
 
 def guardar_en_google_sheets(interaccion):
-    """Guardar la interacción en Google Sheets con las columnas especificadas."""
+    Guardar la interacción en Google Sheets con las columnas especificadas.
     hoja = conectar_google_sheets()
     
     # Serializar la interacción antes de guardarla
@@ -1205,7 +1206,7 @@ def guardar_en_google_sheets(interaccion):
     # Agregar la fila con los datos de la interacción
     fila = [interaccion.get(col, "") for col in columnas]
     hoja.append_row(fila)
-
+"""
 
 
 from datetime import datetime
@@ -1344,7 +1345,7 @@ def crear_interaccion(solicitud_id):
         }
 
         st.session_state.interacciones.append(nueva_interaccion)
-        guardar_en_google_sheets(nueva_interaccion)
+        #guardar_en_google_sheets(nueva_interaccion)
         st.success("Interacción guardada exitosamente en Google Sheets")
 
         st.subheader("Interacción guardada")
