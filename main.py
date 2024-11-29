@@ -77,7 +77,101 @@ def login(email, password):
             return True
     return False
 
-def mostrar_lista_usuarios(filtro_id=None):  # Aseguramos que filtro_id sea un parámetro opcional
+# Función para renderizar la tabla en formato HTML
+def renderizar_tabla_html(df):
+    """Genera la tabla HTML estilizada para mostrar los datos del DataFrame."""
+    table_html = """
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 15px;
+            font-family: Arial, sans-serif;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        th {
+            background-color: #3b8dbd; /* Azul profesional */
+            color: white;
+            text-align: left;
+            padding: 12px;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #f2f2f2;
+            text-align: left;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+        tr:hover {
+            background-color: #f1f1f1; /* Hover suave */
+        }
+        .rojo {
+            color: #e53935;
+            font-weight: bold;
+        }
+        .amarillo {
+            color: #fbc02d;
+            font-weight: bold;
+        }
+        .verde {
+            color: #43a047;
+            font-weight: bold;
+        }
+    </style>
+    <table>
+        <thead>
+            <tr>{headers}</tr>
+        </thead>
+        <tbody>
+            {rows}
+        </tbody>
+    </table>
+    """
+    
+    # Asegúrate de que el DataFrame tiene las columnas esperadas
+    expected_columns = ['Solicitud ID', 'Línea de Crédito', 'Nivel de Atraso', 'Probabilidad de Deterioro']
+    if not all(col in df.columns for col in expected_columns):
+        st.error(f"Faltan algunas columnas esperadas: {expected_columns}")
+        return ""
+    
+    # Generar los encabezados de la tabla
+    headers = ''.join(f'<th>{col}</th>' for col in df.columns)
+
+    # Generar las filas de la tabla con colores según la 'Probabilidad de Deterioro'
+    rows = ''
+    for _, row in df.iterrows():
+        # Determinar el color de acuerdo con la probabilidad de deterioro
+        if row['Probabilidad de Deterioro'] == "Alto":
+            prob_class = 'rojo'
+        elif row['Probabilidad de Deterioro'] == "Medio":
+            prob_class = 'amarillo'
+        elif row['Probabilidad de Deterioro'] == "Bajo":
+            prob_class = 'verde'
+        else:
+            prob_class = ''
+        
+        # Generar las filas
+        rows += (
+            f"<tr>"
+            + ''.join(
+                f"<td class='{prob_class if col == 'Probabilidad de Deterioro' else ''}'>{val}</td>"
+                for col, val in row.items()
+            )
+            + "</tr>"
+        )
+
+    # Construir el HTML de la tabla
+    return table_html.replace("{headers}", headers).replace("{rows}", rows)
+
+# Función principal para mostrar la lista de usuarios
+def mostrar_lista_usuarios(filtro_id=None):
     """Muestra la lista de usuarios con filtros, probabilidad de deterioro, nivel de atraso y botones de orden."""
     st.title("Listado de Usuarios")
 
@@ -87,10 +181,20 @@ def mostrar_lista_usuarios(filtro_id=None):  # Aseguramos que filtro_id sea un p
     else:
         df_filtrado = df_mo.copy()
 
-    # Filtros
-    filtro_credito = st.number_input("Línea de Crédito mínima", min_value=0, step=1000, value=0)
-    filtro_prob_deterioro = st.selectbox("Probabilidad de Deterioro", ["Todos", "Bajo", "Medio", "Alto"])
-    filtro_nivel_atraso = st.selectbox("Nivel de Atraso", ["Todos"] + list(atraso_dict.values()))
+    # Filtros: organizar los widgets de manera más bonita con columnas
+    col1, col2 = st.columns(2)  # Dividir en 2 columnas
+
+    with col1:
+        filtro_credito = st.number_input("Línea de Crédito mínima", min_value=0, step=1000, value=0)
+    
+    with col2:
+        filtro_prob_deterioro = st.selectbox("Probabilidad de Deterioro", ["Todos", "Bajo", "Medio", "Alto"])
+
+    # Segunda fila de filtros, colocando "Nivel de Atraso" en una columna diferente
+    col3, col4 = st.columns(2)  # Nuevas columnas para los siguientes filtros
+
+    with col3:
+        filtro_nivel_atraso = st.selectbox("Nivel de Atraso", ["Todos"] + list(atraso_dict.values()))
 
     # Aplicar filtros al DataFrame
     if filtro_credito > 0:
@@ -108,7 +212,7 @@ def mostrar_lista_usuarios(filtro_id=None):  # Aseguramos que filtro_id sea un p
         'Prob Dete': 'Probabilidad de Deterioro'
     }, inplace=True)
 
-    # Botones para ordenar
+    # Botones para ordenar: mostrar en columnas
     col1, col2 = st.columns(2)
     with col1:
         ordenar_ascendente = st.button("Ordenar Ascendente")
@@ -136,98 +240,43 @@ def mostrar_lista_usuarios(filtro_id=None):  # Aseguramos que filtro_id sea un p
     df_paginado = df_filtrado.iloc[inicio:fin]
 
     # Tabla estilizada con colores para Probabilidad de Deterioro
-    def renderizar_tabla_html(df):
-        table_html = """
-        <style>
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 20px 0;
-                font-size: 15px;
-                font-family: Arial, sans-serif;
-                border-radius: 10px;
-                overflow: hidden;
-                box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-            }
-            th {
-                background-color: #3b8dbd; /* Azul profesional */
-                color: white;
-                text-align: left;
-                padding: 12px;
-            }
-            td {
-                padding: 10px;
-                border-bottom: 1px solid #f2f2f2;
-                text-align: left;
-            }
-            tr:nth-child(even) {
-                background-color: #f9f9f9;
-            }
-            tr:nth-child(odd) {
-                background-color: #ffffff;
-            }
-            tr:hover {
-                background-color: #f1f1f1; /* Hover suave */
-            }
-            .rojo {
-                color: #e53935;
-                font-weight: bold;
-            }
-            .amarillo {
-                color: #fbc02d;
-                font-weight: bold;
-            }
-            .verde {
-                color: #43a047;
-                font-weight: bold;
-            }
-        </style>
-        <table>
-            <thead>
-                <tr>{headers}</tr>
-            </thead>
-            <tbody>
-                {rows}
-            </tbody>
-        </table>
-        """
-        # Generar los encabezados
-        headers = ''.join(f'<th>{col}</th>' for col in df.columns)
-
-        # Generar las filas con colores según `Probabilidad de Deterioro`
-        rows = ''
-        for _, row in df.iterrows():
-            # Asignar colores según el nivel de probabilidad de deterioro
-            if row['Probabilidad de Deterioro'] == "Alto":
-                prob_class = 'rojo'
-            elif row['Probabilidad de Deterioro'] == "Medio":
-                prob_class = 'amarillo'
-            elif row['Probabilidad de Deterioro'] == "Bajo":
-                prob_class = 'verde'
-            else:
-                prob_class = ''
-
-            rows += (
-                f"<tr>"
-                + ''.join(
-                    f"<td class='{prob_class if col == 'Probabilidad de Deterioro' else ''}'>{val}</td>"
-                    for col, val in row.items()
-                )
-                + "</tr>"
-            )
-
-        return table_html.replace("{headers}", headers).replace("{rows}", rows)
-
-    # Renderizar la tabla paginada con opción de selección
     columnas_para_mostrar = ['Solicitud ID', 'Línea de Crédito', 'Nivel de Atraso', 'Probabilidad de Deterioro']
     tabla_html = renderizar_tabla_html(df_paginado[columnas_para_mostrar])
     st.markdown(tabla_html, unsafe_allow_html=True)
 
-    # Botones de selección en mostrar_lista_usuarios
-    for _, row in df_paginado.iterrows():
-        if st.button(f"Seleccionar {row['Solicitud ID']}", key=row['Solicitud ID']):
-            st.session_state["solicitud_seleccionada"] = row['Solicitud ID']
-            st.session_state.page = "informacion_usuario"  # Change to the information page
+    # Crear las opciones para el radio button (solo mostrar el ID)
+    opciones_seleccion = [
+        (row['Solicitud ID'], f"{row['Solicitud ID']}")  # Solo mostrar el ID aquí
+        for _, row in df_paginado.iterrows()
+    ]
+    
+    # Mostrar el título como encabezado
+    st.subheader("Solicitar información para el cliente con ID:")
+
+    # Dividir los IDs en grupos para las columnas
+    num_columnas = 4  # Definir el número de columnas en las que quieres dividir los IDs
+    opciones_seleccion_columnas = [opcion[1] for opcion in opciones_seleccion]
+    
+    # Dividir los IDs en grupos para las columnas
+    columnas = [opciones_seleccion_columnas[i:i + num_columnas] for i in range(0, len(opciones_seleccion_columnas), num_columnas)]
+
+    # Crear columnas para mostrar los IDs de manera ordenada
+    ids_seleccionados = []
+    for i, columna in enumerate(columnas):
+        cols = st.columns(len(columna))  # Crear tantas columnas como IDs en el grupo
+        for j, id_cliente in enumerate(columna):
+            # No pre-seleccionar nada, solo mostrar las opciones
+            selected_id = cols[j].radio("", [id_cliente], key=f"id_cliente_{i}_{j}", index=None)  # No index seleccionado
+            if selected_id:
+                ids_seleccionados.append(selected_id)
+
+    # Asignar el ID seleccionado al estado de sesión, solo el primer seleccionado
+    if ids_seleccionados:
+        st.session_state.solicitud_seleccionada = ids_seleccionados[0]  # Solo el primero seleccionado
+
+
+
+
 
 
 
@@ -1285,13 +1334,18 @@ else:
     elif opcion == "Historial de Interacciones (Call Center)" and st.session_state.get("solicitud_seleccionada"):
         mostrar_historial_interacciones_callcenter(st.session_state["solicitud_seleccionada"])
     else:
+        # Si el usuario intenta acceder a información o historial sin seleccionar una solicitud
         if opcion in ["Información de Solicitud", "Historial de Interacciones",
                       "Información de Solicitud Call Center", "Historial de Interacciones (Call Center)"]:
             st.warning("Selecciona un ID de solicitud para continuar.")
+        elif opcion == "Listado de Usuarios" or opcion == "Listado de Usuarios Call Center":
+            # Si es la página de listado de usuarios, solo mostramos la lista
+            mostrar_lista_usuarios() 
 
     if st.sidebar.button("Cerrar Sesión"):
         st.session_state.logged_in = False
         st.session_state.page = None
         st.session_state.solicitud_seleccionada = None
         st.stop()
+
 
